@@ -63,33 +63,32 @@ Re = 12.38  # Число Рейнольдса
 Fr = 1.23  # Число Фруда
 N = 720  # Количество лучей
 delta_phi = 2 * np.pi / N # Угол между n и n+1 лучами
-
-runge = Runge(delta_t, target_t, 0)
-
-boundary_conditions = {
-    "N": N,
-    "Re": Re,
-    "Fr": Fr,
-    "target_t": target_t,
-    "init_delta": init_delta,
-    "delta_phi": delta_phi
-}
-
-init_values = np.full(shape=N, fill_value=init_delta)
-func = partial(f, boundary_conditions)
-
-result = runge.runge_method(func, init_values)
-
-r = [i + 1 for i in result]
 phi = np.arange(0, 2 * np.pi, delta_phi)
 
-print(r)
-
-# r от φ в полярной системе координат
 fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
-ax.plot(phi, r)
-ax.plot(phi, np.ones_like(phi), color="black")
-ax.grid(True)
+ax.plot(phi, np.ones_like(phi), color="black", label="Цилиндр")
+
+# for init_delta in [0.05, 0.1, 0.2, 0.3]:
+for target_t in [0.5, 1, 3, 10]:
+    runge = Runge(delta_t, target_t, 0)
+
+    boundary_conditions = {
+        "N": N,
+        "Re": Re,
+        "Fr": Fr,
+        "target_t": target_t,
+        "init_delta": init_delta,
+        "delta_phi": delta_phi
+    }
+
+    init_values = np.full(shape=N, fill_value=init_delta)
+    func = partial(f, boundary_conditions)
+
+    delta = runge.runge_method(func, init_values)
+    r = [i + 1 for i in delta]
+
+    # r от φ в полярной системе координат
+    ax.plot(phi, r, label="τ=" + str(target_t) + 'c  Fr=' + str(Fr) + '  Re=' + str(Re) + '  δ⁰(φ)=const=' + str(init_delta))
 
 # r от t в прямоугольной системе координат
 # plt.figure()
@@ -99,6 +98,9 @@ ax.grid(True)
 # plt.legend('π', loc='best')
 # plt.grid(True)
 
+ax.grid(True)
+plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
+                    ncols=2, mode="expand", borderaxespad=0.)
 plt.show()
 
 
